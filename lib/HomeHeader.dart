@@ -4,6 +4,7 @@ import 'package:weather_app/Constants/constants.dart';
 import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
 import 'package:weather_app/Weather/weather.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePageHeaderContent extends StatefulWidget {
   @override
@@ -14,9 +15,12 @@ class HomePageHeaderContent extends StatefulWidget {
 LocationHelper _locationHelper = LocationHelper();
 String userCountry;
 String userLocality;
-double longitude;
-double latitude;
+double _longitude;
+double _latitude;
 int temp;
+int humidity;
+int wind;
+int feelsLike;
 String tempDesc;
 String weatherIcon;
 bool isLocationLoading = true;
@@ -32,28 +36,34 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
   //To get User's Country, Locality and current weather info.
   Future getUserAddressAndLocationData() async {
     await _locationHelper.getUserCountryAndLocality();
-    print('User locality: $userLocality');
+    print('user address: Address');
+
     setState(() {
+      isLocationLoading = false;
       userCountry = _locationHelper.userCountry;
       userLocality = _locationHelper.userLocality;
-      isLocationLoading = false;
     });
 
-    longitude = _locationHelper.longitude;
-    latitude = _locationHelper.latitude;
+    _longitude = _locationHelper.longitude;
+    _latitude = _locationHelper.latitude;
 
-    String url =
-        '$kBaseUrl/weather?lat=$latitude&lon=$longitude&appid=$kAppId&units=metric';
+    String urlForCurrentWeather =
+        '$kBaseUrl/weather?lat=$_latitude&lon=$_longitude&appid=$kAppId&units=metric';
 
-    NetworkHelper _networkHelper = NetworkHelper(url: url);
+    NetworkHelper _networkHelper = NetworkHelper(url: urlForCurrentWeather);
 
     var weatherData = await _networkHelper.getData();
 
     setState(() {
+      weatherIcon = getWeatherIcon(weatherData['weather'][0]['id']);
       var temperature = weatherData['main']['temp'];
       temp = temperature.toInt();
       tempDesc = weatherData['weather'][0]['description'];
-      weatherIcon = getWeatherIcon(weatherData['weather'][0]['id']);
+      humidity = weatherData['main']['humidity'];
+      var feelsLikeInDouble = weatherData['main']['feels_like'];
+      feelsLike = feelsLikeInDouble.toInt();
+      var windInDouble = weatherData['wind']['speed'];
+      wind = windInDouble.toInt();
       isCurrentWeatherLoading = false;
     });
   }
@@ -188,32 +198,91 @@ class LocationLabel extends StatelessWidget {
     );
   }
 }
-//
-//return Padding(
-//padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-//child: Column(
-//crossAxisAlignment: CrossAxisAlignment.start,
-//children: <Widget>[
-//Row(
-//mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//children: <Widget>[
-//isLocationLoading == true
-//? SpinKitChasingDots(
-//color: Colors.orange,
-//)
-//: LocationRichText(),
-//Icon(
-//Icons.share,
-//color: Colors.white,
-//),
-//],
-//),
-//Align(
-//alignment: Alignment.centerLeft,
-//child: SpinKitRotatingPlain(
-//color: Colors.orange,
-//),
-//),
-//],
-//),
-//);
+
+class WeatherExtrasContainer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 1,
+      child: Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            isCurrentWeatherLoading == true
+                ? SpinKitHourGlass(
+                    color: Colors.orange,
+                  )
+                : WeatherExtras(
+                    title: 'Humidity',
+                    value: '$humidity%',
+                    icon: FontAwesomeIcons.rainbow,
+                  ),
+            isCurrentWeatherLoading == true
+                ? SpinKitHourGlass(
+                    color: Colors.orange,
+                  )
+                : WeatherExtras(
+                    title: 'Wind',
+                    value: '$wind mph',
+                    icon: FontAwesomeIcons.wind,
+                  ),
+            isCurrentWeatherLoading == true
+                ? SpinKitHourGlass(
+                    color: Colors.orange,
+                  )
+                : WeatherExtras(
+                    title: 'Feels Like',
+                    value: '$feelsLike°C',
+                    icon: FontAwesomeIcons.coffee,
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class WeatherExtras extends StatefulWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+
+  WeatherExtras(
+      {@required this.title, @required this.value, @required this.icon});
+
+  @override
+  _WeatherExtrasState createState() => _WeatherExtrasState();
+}
+
+class _WeatherExtrasState extends State<WeatherExtras> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20.0),
+          child: FaIcon(
+            widget.icon,
+            size: 18.0,
+          ),
+        ),
+        SizedBox(width: 10.0),
+        RichText(
+          text: TextSpan(
+            text: '${widget.title}\n',
+            style: TextStyle(color: Color(0xff2B3E6C), fontSize: 18.0),
+            children: <TextSpan>[
+              TextSpan(
+                text: widget.value,
+                style: TextStyle(
+                    color: Color(0xff2B3E6C),
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

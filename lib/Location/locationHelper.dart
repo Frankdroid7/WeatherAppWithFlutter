@@ -9,12 +9,12 @@ class LocationHelper {
 
   Future getUserCoordinate() async {
     Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
 
     longitude = position.longitude;
     latitude = position.latitude;
-//    print('longitude: $longitude');
-//    print('latitude: $latitude');
+    print('longitude: $longitude');
+    print('latitude: $latitude');
   }
 
   Future<void> getUserCountryAndLocality() async {
@@ -24,6 +24,6 @@ class LocationHelper {
 
     userCountry = placemark[0].country;
     userLocality = placemark[0].locality;
-//    print('User Locality: $userLocality');
+    print('User Locality: $userLocality');
   }
 }

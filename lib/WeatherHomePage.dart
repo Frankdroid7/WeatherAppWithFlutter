@@ -6,7 +6,19 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/FullDetailsWeatherPage.dart';
 import 'package:weather_app/HomeHeader.dart';
-import 'package:weather_app/WeatherListView.dart';
+import 'package:weather_app/Weather/TodayWeatherListView.dart';
+import 'package:weather_app/Weather/TomorrowWeatherListView.dart';
+
+enum TabText { TODAY, TOMORROW, WEEK }
+
+TabText selectedTab = TabText.TODAY;
+
+const Color activeColor = Color(0xffEBF2FF);
+const Color inActiveColor = Color(0xffffffff);
+
+FontWeight todayFW;
+FontWeight tomorrowFW;
+FontWeight weekFW;
 
 class WeatherHomePage extends StatefulWidget {
   @override
@@ -61,36 +73,11 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                       child: SafeArea(child: HomePageHeaderContent()),
                     ),
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          WeatherExtras(
-                            title: 'Humidity',
-                            value: '75%',
-                            icon: FontAwesomeIcons.rainbow,
-                          ),
-                          WeatherExtras(
-                            title: 'Wind',
-                            value: '10 mph',
-                            icon: FontAwesomeIcons.wind,
-                          ),
-                          WeatherExtras(
-                            title: 'Feels Like',
-                            value: '12°C',
-                            icon: FontAwesomeIcons.coffee,
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
+                  WeatherExtrasContainer()
                 ],
               ),
             ),
           ),
-
           //Second 'root' CardView
           Expanded(
             flex: 1,
@@ -103,32 +90,163 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(height: 15.0),
-                  RichText(
-                    text: TextSpan(
-                      text: '${currentTime()}\n',
-                      style: TextStyle(
-                          fontSize: 40.0,
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text:
-                              '              ${DateFormat('EEE, d MMM').format(DateTime.now())}',
-                          style: TextStyle(
-                              height: 1.5,
-                              color: Theme.of(context).primaryColor,
-                              fontSize: 15.0,
-                              fontWeight: FontWeight.w600),
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        text: '${currentTime()}\n',
+                        style: TextStyle(
+                            fontSize: 40.0,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text:
+                                '             ${DateFormat('EEE, d MMM').format(DateTime.now())}',
+                            style: TextStyle(
+                                height: 1.5,
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Card(
+                    elevation: 5.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50.0),
+                        bottomLeft: Radius.circular(50.0),
+                      ),
+                    ),
+                    margin: EdgeInsets.only(left: 50.0),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedTab = TabText.TODAY;
+                              });
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(50.0),
+                              ),
+                              child: Container(
+                                color: selectedTab == TabText.TODAY
+                                    ? activeColor
+                                    : inActiveColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Center(
+                                    child: Text(
+                                      'Today',
+                                      style: TextStyle(
+                                        color: Color(0xff586171),
+                                        fontSize: 18.0,
+                                        fontWeight: selectedTab == TabText.TODAY
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedTab = TabText.TOMORROW;
+                              });
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(50.0),
+                              ),
+                              child: Container(
+                                color: selectedTab == TabText.TOMORROW
+                                    ? activeColor
+                                    : inActiveColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Center(
+                                    child: Text(
+                                      'Tomorrow',
+                                      style: TextStyle(
+                                        color: Color(0xff586171),
+                                        fontSize: 18.0,
+                                        fontWeight:
+                                            selectedTab == TabText.TOMORROW
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedTab = TabText.WEEK;
+                              });
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      FullDetailsWeatherPage(),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(50.0),
+                              ),
+                              child: Container(
+                                color: selectedTab == TabText.WEEK
+                                    ? activeColor
+                                    : inActiveColor,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Center(
+                                    child: Text(
+                                      'Week',
+                                      style: TextStyle(
+                                        color: Color(0xff586171),
+                                        fontSize: 18.0,
+                                        fontWeight: selectedTab == TabText.WEEK
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
                   SizedBox(height: 20.0),
-                  TabContainer(),
-                  SizedBox(height: 20.0),
-                  WeatherListView(),
+                  if (selectedTab == TabText.TODAY)
+                    TodayWeatherListView()
+                  else if (selectedTab == TabText.TOMORROW)
+                    TomorrowWeatherListView()
+                  else
+                    Center(child: Text('WEEK')),
                 ],
               ),
             ),
@@ -138,17 +256,6 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     );
   }
 }
-
-enum TabText { TODAY, TOMORROW, WEEK }
-
-TabText selectedTab = TabText.TODAY;
-
-const Color activeColor = Color(0xffEBF2FF);
-const Color inActiveColor = Color(0xffffffff);
-
-FontWeight todayFW;
-FontWeight tomorrowFW;
-FontWeight weekFW;
 
 class TabContainer extends StatefulWidget {
   @override
@@ -272,51 +379,6 @@ class _TabContainerState extends State<TabContainer> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class WeatherExtras extends StatefulWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-
-  WeatherExtras(
-      {@required this.title, @required this.value, @required this.icon});
-
-  @override
-  _WeatherExtrasState createState() => _WeatherExtrasState();
-}
-
-class _WeatherExtrasState extends State<WeatherExtras> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(bottom: 20.0),
-          child: FaIcon(
-            widget.icon,
-            size: 18.0,
-          ),
-        ),
-        SizedBox(width: 10.0),
-        RichText(
-          text: TextSpan(
-            text: '${widget.title}\n',
-            style: TextStyle(color: Color(0xff2B3E6C), fontSize: 18.0),
-            children: <TextSpan>[
-              TextSpan(
-                text: widget.value,
-                style: TextStyle(
-                    color: Color(0xff2B3E6C),
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
