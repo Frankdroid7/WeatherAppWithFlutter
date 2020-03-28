@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:weather_app/Constants/constants.dart';
 import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
-import 'package:weather_app/Constants/constants.dart';
 import 'package:weather_app/Weather/weather.dart' as weather;
+
+import '../IndividualHorizontalListItem.dart';
 
 List listOfHourlyWeatherData;
 List mListOfHourlyWeatherDataForTomorrow;
 String _time;
+List<String> listOfTime;
+List<String> listOfWeatherIcon;
+List<int> listOfWeatherTemp;
+List<int> listOfWeatherHumidity;
 int _temp;
 bool isTomorrowWeatherDataLoading = true;
 
@@ -42,22 +48,22 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
 
     //To initialize mListOfHourlyWeatherData
     mListOfHourlyWeatherDataForTomorrow = List();
+    listOfTime = List();
+    listOfWeatherIcon = List();
+    listOfWeatherTemp = List();
+    listOfWeatherHumidity = List();
 
     var dateForTomorrow = DateTime.now().add(Duration(hours: 24));
 
     var regExpForDate = RegExp('[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]');
     for (int i = 0; i < listOfHourlyWeatherData.length; i++) {
-      print('hiiiiiiiiiiiiiiiiiiiii: $i');
       var justDateFromApi =
           regExpForDate.stringMatch(listOfHourlyWeatherData[i]['dt_txt']);
       var justTomorrowDateFromLocal =
           regExpForDate.stringMatch(dateForTomorrow.toString());
-      print('justDateFromApi: $justDateFromApi');
-      print('justDateFromLocal: $justTomorrowDateFromLocal');
 
       if (justDateFromApi == justTomorrowDateFromLocal) {
         mListOfHourlyWeatherDataForTomorrow.add(listOfHourlyWeatherData[i]);
-        print('mListOfHourlyWeatherData: $mListOfHourlyWeatherDataForTomorrow');
       }
     }
     isTomorrowWeatherDataLoading = false;
@@ -68,20 +74,28 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
     _time = mListOfHourlyWeatherDataForTomorrow[currentIndex]['dt_txt'];
     var timeMatch = regExp.stringMatch(_time);
     if (timeMatch == '00:00') {
+      listOfTime.add('12AM');
       return '12AM';
     } else if (timeMatch == '03:00') {
+      listOfTime.add('3AM');
       return '3AM';
     } else if (timeMatch == '06:00') {
+      listOfTime.add('6AM');
       return '6AM';
     } else if (timeMatch == '09:00') {
+      listOfTime.add('9AM');
       return '9AM';
     } else if (timeMatch == '12:00') {
+      listOfTime.add('12PM');
       return '12PM';
     } else if (timeMatch == '15:00') {
+      listOfTime.add('3PM');
       return '3PM';
     } else if (timeMatch == '18:00') {
+      listOfTime.add('6PM');
       return '6PM';
     } else if (timeMatch == '21:00') {
+      listOfTime.add('9PM');
       return '9PM';
     }
     return '';
@@ -91,13 +105,22 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
     var temperature =
         mListOfHourlyWeatherDataForTomorrow[currentIndex]['main']['temp'];
     _temp = temperature.toInt();
+    listOfWeatherTemp.add(_temp);
     return _temp;
   }
 
   String mWeatherIcon({int currentIndex}) {
     var weatherCondition =
         mListOfHourlyWeatherDataForTomorrow[currentIndex]['weather'][0]['id'];
+    listOfWeatherIcon.add(weather.getWeatherIcon(weatherCondition));
     return weather.getWeatherIcon(weatherCondition);
+  }
+
+  void mWeatherHumidity({int currentIndex}) {
+    var weatherHumidity =
+        mListOfHourlyWeatherDataForTomorrow[0]['main']['humidity'];
+
+    listOfWeatherHumidity.add(weatherHumidity);
   }
 
   @override
@@ -114,6 +137,7 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
               scrollDirection: Axis.horizontal,
               itemCount: mListOfHourlyWeatherDataForTomorrow.length,
               itemBuilder: (context, index) {
+                mWeatherHumidity(currentIndex: index);
                 return IndividualHorizontalListItem(
                   temp: mTemp(currentIndex: index),
                   time: mTime(currentIndex: index),
@@ -124,43 +148,6 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
   }
 }
 
-class IndividualHorizontalListItem extends StatelessWidget {
-  final dynamic temp;
-  final String time;
-  final String weatherIcon;
-
-  IndividualHorizontalListItem(
-      {@required this.temp, @required this.time, @required this.weatherIcon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 80.0,
-      child: Card(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12.0))),
-        color: Theme.of(context).primaryColor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text(
-              '$time',
-              style: TextStyle(color: Colors.white, fontSize: 15.0),
-            ),
-            Text(
-              weatherIcon,
-              style: TextStyle(fontSize: 50.0),
-            ),
-            Text(
-              '$temp°C',
-              style: TextStyle(color: Colors.white70),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
 //Widget widgetToShow;
 //if (isTomorrowWeatherDataLoading == true) {
 //widgetToShow = Text('Come back tomorrow to check weather');

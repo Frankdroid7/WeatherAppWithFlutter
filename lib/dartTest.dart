@@ -1,7 +1,9 @@
 void main() {
-  var regExpForDate = RegExp('[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]');
-  var today = DateTime.now();
-  var tomorrow = today.add(Duration(hours: 24));
+  var regExpForDate = RegExp('[0-9]');
+  var mString = 'hel5lo';
 
-  print('tomorrow: $tomorrow');
+  if (regExpForDate.hasMatch(mString))
+    print('Has Int');
+  else
+    print('Has NOT int');
 }

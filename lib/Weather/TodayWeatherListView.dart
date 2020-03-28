@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
 import 'package:weather_app/Weather/weather.dart' as weather;
+
 import '../Constants/constants.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../IndividualHorizontalListItem.dart';
+
+List listOfHourlyWeatherData;
+List mListOfHourlyWeatherData;
+String _time;
+List<String> listOfTime;
+List<String> listOfWeatherIcon;
+List<int> listOfWeatherTemp;
+List<int> listOfWeatherHumidity;
+bool isTodayWeatherDataLoading = true;
 
 class TodayWeatherListView extends StatefulWidget {
   @override
@@ -11,12 +22,6 @@ class TodayWeatherListView extends StatefulWidget {
 }
 
 class _TodayWeatherListViewState extends State<TodayWeatherListView> {
-  List listOfHourlyWeatherData;
-  List mListOfHourlyWeatherData;
-  String _time;
-  int _temp;
-  bool isTodayWeatherDataLoading = true;
-
   @override
   void initState() {
     super.initState();
@@ -27,6 +32,8 @@ class _TodayWeatherListViewState extends State<TodayWeatherListView> {
     //Get User's Coordinate first.
     LocationHelper _locationHelper = LocationHelper();
     await _locationHelper.getUserCoordinate();
+
+    print('FINISH WAITING');
 
     //Url for hourly forecast
     String urlForHourlyForecast =
@@ -40,6 +47,10 @@ class _TodayWeatherListViewState extends State<TodayWeatherListView> {
     listOfHourlyWeatherData = weatherData['list'];
 
     mListOfHourlyWeatherData = List();
+    listOfTime = List();
+    listOfWeatherIcon = List();
+    listOfWeatherTemp = List();
+    listOfWeatherHumidity = List();
 
     var regExpForDate = RegExp('[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]');
     for (int i = 0; i < listOfHourlyWeatherData.length; i++) {
@@ -60,20 +71,28 @@ class _TodayWeatherListViewState extends State<TodayWeatherListView> {
     _time = mListOfHourlyWeatherData[currentIndex]['dt_txt'];
     var timeMatch = regExp.stringMatch(_time);
     if (timeMatch == '00:00') {
+      listOfTime.add('12AM');
       return '12AM';
     } else if (timeMatch == '03:00') {
+      listOfTime.add('3AM');
       return '3AM';
     } else if (timeMatch == '06:00') {
+      listOfTime.add('6AM');
       return '6AM';
     } else if (timeMatch == '09:00') {
+      listOfTime.add('9AM');
       return '9AM';
     } else if (timeMatch == '12:00') {
+      listOfTime.add('12PM');
       return '12PM';
     } else if (timeMatch == '15:00') {
+      listOfTime.add('3PM');
       return '3PM';
     } else if (timeMatch == '18:00') {
+      listOfTime.add('6PM');
       return '6PM';
     } else if (timeMatch == '21:00') {
+      listOfTime.add('9PM');
       return '9PM';
     }
     return '';
@@ -81,75 +100,52 @@ class _TodayWeatherListViewState extends State<TodayWeatherListView> {
 
   int mTemp({int currentIndex}) {
     var temperature = mListOfHourlyWeatherData[currentIndex]['main']['temp'];
-    _temp = temperature.toInt();
+    var _temp = temperature.toInt();
+    listOfWeatherTemp.add(_temp);
     return _temp;
   }
 
   String mWeatherIcon({int currentIndex}) {
     var weatherCondition =
         mListOfHourlyWeatherData[currentIndex]['weather'][0]['id'];
-
+    listOfWeatherIcon.add(weather.getWeatherIcon(weatherCondition));
     return weather.getWeatherIcon(weatherCondition);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      flex: 1,
-      child: isTodayWeatherDataLoading == true
-          ? SpinKitHourGlass(
-              color: Colors.orange,
-            )
-          : ListView.builder(
-              padding: EdgeInsets.only(bottom: 50.0),
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemCount: mListOfHourlyWeatherData.length,
-              itemBuilder: (context, index) {
-                return IndividualHorizontalListItem(
-                  temp: mTemp(currentIndex: index),
-                  time: mTime(currentIndex: index),
-                  weatherIcon: mWeatherIcon(currentIndex: index),
-                );
-              }),
-    );
+  void mWeatherHumidity({int currentIndex}) {
+    var weatherHumidity =
+        mListOfHourlyWeatherData[currentIndex]['main']['humidity'];
+
+    listOfWeatherHumidity.add(weatherHumidity);
   }
-}
-
-class IndividualHorizontalListItem extends StatelessWidget {
-  final dynamic temp;
-  final String time;
-  final String weatherIcon;
-
-  IndividualHorizontalListItem(
-      {@required this.temp, @required this.time, @required this.weatherIcon});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 80.0,
-      child: Card(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12.0))),
-        color: Theme.of(context).primaryColor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Text(
-              '$time',
-              style: TextStyle(color: Colors.white, fontSize: 15.0),
-            ),
-            Text(
-              weatherIcon,
-              style: TextStyle(fontSize: 50.0),
-            ),
-            Text(
-              '$temp°C',
-              style: TextStyle(color: Colors.white70),
-            )
-          ],
-        ),
-      ),
-    );
+    return isTodayWeatherDataLoading == true
+        ? SpinKitHourGlass(
+            color: Colors.orange,
+          )
+        : mListOfHourlyWeatherData.isNotEmpty
+            ? ListView.builder(
+                padding: EdgeInsets.only(bottom: 50.0),
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemCount: mListOfHourlyWeatherData.length,
+                itemBuilder: (context, index) {
+                  mWeatherHumidity(currentIndex: index);
+                  return Expanded(
+                    child: IndividualHorizontalListItem(
+                      temp: mTemp(currentIndex: index),
+                      time: mTime(currentIndex: index),
+                      weatherIcon: mWeatherIcon(currentIndex: index),
+                    ),
+                  );
+                })
+            : Center(
+                child: Text(
+                  'No data today, come tomorrow!',
+                  style: TextStyle(fontSize: 25.0),
+                ),
+              );
   }
 }
