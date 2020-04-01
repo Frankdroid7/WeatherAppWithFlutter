@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:share/share.dart';
 import 'package:weather_app/Constants/constants.dart';
 import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
@@ -36,7 +37,6 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
   //To get User's Country, Locality and current weather info.
   Future getUserAddressAndLocationData() async {
     await _locationHelper.getUserCountryAndLocality();
-    print('user address: Address');
 
     setState(() {
       isLocationLoading = false;
@@ -71,13 +71,12 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         LocationLabel(),
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 20.0,
+            vertical: 10.0,
             horizontal: 20.0,
           ),
           child: Column(
@@ -91,7 +90,14 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
                           color: Colors.orange,
                         )
                       : LocationRichText(),
-                  Icon(Icons.share, color: Colors.white)
+                  GestureDetector(
+                      onTap: () {
+                        Share.share(
+                          'Check out a weather app: https:\\www.google.com',
+                          subject: 'A subject',
+                        );
+                      },
+                      child: Icon(Icons.share, color: Colors.white))
                 ],
               ),
               isCurrentWeatherLoading == true
@@ -202,41 +208,38 @@ class LocationLabel extends StatelessWidget {
 class WeatherExtrasContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      flex: 1,
-      child: Container(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            isCurrentWeatherLoading == true
-                ? SpinKitHourGlass(
-                    color: Colors.orange,
-                  )
-                : WeatherExtras(
-                    title: 'Humidity',
-                    value: '$humidity%',
-                    icon: FontAwesomeIcons.rainbow,
-                  ),
-            isCurrentWeatherLoading == true
-                ? SpinKitHourGlass(
-                    color: Colors.orange,
-                  )
-                : WeatherExtras(
-                    title: 'Wind',
-                    value: '$wind mph',
-                    icon: FontAwesomeIcons.wind,
-                  ),
-            isCurrentWeatherLoading == true
-                ? SpinKitHourGlass(
-                    color: Colors.orange,
-                  )
-                : WeatherExtras(
-                    title: 'Feels Like',
-                    value: '$feelsLike°C',
-                    icon: FontAwesomeIcons.coffee,
-                  ),
-          ],
-        ),
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          isCurrentWeatherLoading == true
+              ? SpinKitHourGlass(
+                  color: Colors.orange,
+                )
+              : WeatherExtras(
+                  title: 'Humidity',
+                  value: '$humidity%',
+                  icon: FontAwesomeIcons.rainbow,
+                ),
+          isCurrentWeatherLoading == true
+              ? SpinKitHourGlass(
+                  color: Colors.orange,
+                )
+              : WeatherExtras(
+                  title: 'Wind',
+                  value: '$wind mph',
+                  icon: FontAwesomeIcons.wind,
+                ),
+          isCurrentWeatherLoading == true
+              ? SpinKitHourGlass(
+                  color: Colors.orange,
+                )
+              : WeatherExtras(
+                  title: 'Feels Like',
+                  value: '$feelsLike°C',
+                  icon: FontAwesomeIcons.coffee,
+                ),
+        ],
       ),
     );
   }

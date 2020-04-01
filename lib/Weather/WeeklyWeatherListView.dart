@@ -55,7 +55,7 @@ String getDayOfWeek({int currentIndex}) {
     );
   }
 
-  return mDayOfTheWeekList[currentIndex];
+  return mDayOfTheWeekList[currentIndex].substring(0, 3);
 }
 
 int getTemp({int currentIndex}) {
@@ -99,7 +99,6 @@ class _WeeklyWeatherListViewState extends State<WeeklyWeatherListView> {
               color: Colors.orange,
             )
           : ListView.builder(
-              padding: EdgeInsets.only(bottom: 50.0),
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
               itemCount: 5,

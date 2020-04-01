@@ -78,12 +78,12 @@ class FullDetailsWeatherPage extends StatelessWidget {
                                             true
                                         ? Text('Time',
                                             style: TextStyle(
-                                                fontSize: 18.0,
+                                                fontSize: 15.0,
                                                 color: Colors.white))
                                         : Text(
                                             'Day Of the Week',
                                             style: TextStyle(
-                                                fontSize: 18.0,
+                                                fontSize: 15.0,
                                                 color: Colors.white),
                                           )),
                           ),
@@ -105,7 +105,7 @@ class FullDetailsWeatherPage extends StatelessWidget {
                                 child: Text(
                                   'Icon',
                                   style: TextStyle(
-                                      fontSize: 18.0, color: Colors.white),
+                                      fontSize: 15.0, color: Colors.white),
                                 )),
                           ),
                         ]),
@@ -127,7 +127,7 @@ class FullDetailsWeatherPage extends StatelessWidget {
                                   child: Text(
                                     'Temp',
                                     style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white),
+                                        fontSize: 15.0, color: Colors.white),
                                   )),
                             ),
                           ),
@@ -139,21 +139,18 @@ class FullDetailsWeatherPage extends StatelessWidget {
                       child: Container(
                         margin: EdgeInsets.only(right: 5.0),
                         child: Wrap(children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(right: 18.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0))),
-                              child: Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: Text(
-                                    'Hum',
-                                    style: TextStyle(
-                                        fontSize: 18.0, color: Colors.white),
-                                  )),
-                            ),
+                          Container(
+                            decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0))),
+                            child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                  'Hum',
+                                  style: TextStyle(
+                                      fontSize: 15.0, color: Colors.white),
+                                )),
                           ),
                         ]),
                       ),

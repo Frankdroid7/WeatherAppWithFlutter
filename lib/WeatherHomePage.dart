@@ -15,7 +15,7 @@ import 'package:weather_app/Weather/WeeklyWeatherListView.dart'
 
 enum TabText { TODAY, TOMORROW, WEEK }
 
-TabText selectedTab = TabText.TODAY;
+TabText selectedTab = TabText.TOMORROW;
 
 const Color activeColor = Color(0xffEBF2FF);
 const Color inActiveColor = Color(0xffffffff);
@@ -63,8 +63,8 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Expanded(
-                    flex: 3,
+                  Flexible(
+                    flex: 4,
                     child: Card(
                       color: Theme.of(context).primaryColor,
                       elevation: 10.0,
@@ -74,10 +74,15 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                           bottomLeft: Radius.circular(40.0),
                         ),
                       ),
-                      child: SafeArea(child: HomePageHeaderContent()),
+                      child: SafeArea(
+                        child: HomePageHeaderContent(),
+                      ),
                     ),
                   ),
-                  WeatherExtrasContainer()
+                  Expanded(
+                    flex: 1,
+                    child: WeatherExtrasContainer(),
+                  ),
                 ],
               ),
             ),
@@ -93,8 +98,6 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                 ),
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(height: 15.0),
                   Center(

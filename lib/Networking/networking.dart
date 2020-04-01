@@ -16,7 +16,7 @@ class NetworkHelper {
       var jsonBody = data.body;
       return jsonDecode(jsonBody);
     } else {
-      print('something went wrong: ${data.statusCode}');
+      print('Something went wrong: ${data.statusCode}');
     }
   }
 }

@@ -63,6 +63,7 @@ class _TodayWeatherListViewState extends State<TodayWeatherListView> {
         mListOfHourlyWeatherData.add(listOfHourlyWeatherData[i]);
       }
     }
+    print('mListOfHourlyWeatherData: $mListOfHourlyWeatherData');
     isTodayWeatherDataLoading = false;
   }
 
@@ -121,31 +122,33 @@ class _TodayWeatherListViewState extends State<TodayWeatherListView> {
 
   @override
   Widget build(BuildContext context) {
-    return isTodayWeatherDataLoading == true
-        ? SpinKitHourGlass(
-            color: Colors.orange,
-          )
-        : mListOfHourlyWeatherData.isNotEmpty
-            ? ListView.builder(
-                padding: EdgeInsets.only(bottom: 50.0),
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemCount: mListOfHourlyWeatherData.length,
-                itemBuilder: (context, index) {
-                  mWeatherHumidity(currentIndex: index);
-                  return Expanded(
-                    child: IndividualHorizontalListItem(
-                      temp: mTemp(currentIndex: index),
-                      time: mTime(currentIndex: index),
-                      weatherIcon: mWeatherIcon(currentIndex: index),
-                    ),
-                  );
-                })
-            : Center(
-                child: Text(
-                  'No data today, come tomorrow!',
-                  style: TextStyle(fontSize: 25.0),
-                ),
-              );
+    if (isTodayWeatherDataLoading == true) {
+      return SpinKitHourGlass(
+        color: Colors.orange,
+      );
+    } else {
+      if (mListOfHourlyWeatherData.isNotEmpty) {
+        return Expanded(
+          child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: mListOfHourlyWeatherData.length,
+              itemBuilder: (context, index) {
+                mWeatherHumidity(currentIndex: index);
+                return IndividualHorizontalListItem(
+                  temp: mTemp(currentIndex: index),
+                  time: mTime(currentIndex: index),
+                  weatherIcon: mWeatherIcon(currentIndex: index),
+                );
+              }),
+        );
+      } else {
+        return Center(
+          child: Text(
+            'No data today, come tomorrow!',
+            style: TextStyle(fontSize: 25.0),
+          ),
+        );
+      }
+    }
   }
 }

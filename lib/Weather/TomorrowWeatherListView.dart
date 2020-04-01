@@ -132,7 +132,6 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
               color: Colors.orange,
             )
           : ListView.builder(
-              padding: EdgeInsets.only(bottom: 50.0),
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
               itemCount: mListOfHourlyWeatherDataForTomorrow.length,
