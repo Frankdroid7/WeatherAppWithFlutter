@@ -30,6 +30,11 @@ class WeatherHomePage extends StatefulWidget {
 }
 
 class _WeatherHomePageState extends State<WeatherHomePage> {
+  double height;
+  double width;
+  int selectedItem = 1;
+
+  List<String> _dayType = ["Today", "Tomorrow", "Week"];
   String currentTime() {
     String now;
     setState(() {
@@ -44,311 +49,157 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
+
     readTime();
     return Scaffold(
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          //First 'root' CardView
-          Expanded(
-            flex: 1,
-            //First 'White' Card
-            child: Card(
-              margin: EdgeInsets.all(0.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40.0),
-                ),
+          Stack(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.only(bottom: height * 0.02),
+                height: height * 0.5,
+                decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 0.3,
+                          spreadRadius: 0.3)
+                    ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(height * 0.05))),
+                child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: WeatherExtrasContainer()),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Flexible(
-                    flex: 4,
-                    child: Card(
-                      color: Theme.of(context).primaryColor,
-                      elevation: 10.0,
-                      margin: EdgeInsets.all(0.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(40.0),
-                        ),
-                      ),
-                      child: SafeArea(
-                        child: HomePageHeaderContent(),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: WeatherExtrasContainer(),
-                  ),
-                ],
+              Container(
+                child: SafeArea(child: HomePageHeaderContent()),
+                height: height * 0.4,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(height * 0.05))),
               ),
-            ),
+            ],
           ),
-          //Second 'root' CardView
-          Expanded(
-            flex: 1,
-            child: Card(
-              margin: EdgeInsets.fromLTRB(5.0, 5.0, 0.0, 5.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(0.0),
-                ),
-              ),
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: 15.0),
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        text: '${currentTime()}\n',
-                        style: TextStyle(
-                            fontSize: 40.0,
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.bold),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text:
-                                '             ${DateFormat('EEE, d MMM').format(DateTime.now())}',
-                            style: TextStyle(
-                                height: 1.5,
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10.0),
-                  if (selectedTab == TabText.TODAY &&
-                      TodayWeatherListView.isTodayWeatherDataLoading == false &&
-                      TodayWeatherListView.mListOfHourlyWeatherData.length > 0)
-                    Center(
-                        child:
-                            Text('Double Click "Today" to view full screen.')),
-                  if (selectedTab == TabText.TOMORROW &&
-                      TomorrowWeatherListView.isTomorrowWeatherDataLoading ==
-                          false)
-                    Center(
-                        child: Text(
-                            'Double Click "Tomorrow" to view full screen.')),
-                  if (selectedTab == TabText.WEEK &&
-                      WeeklyWeatherListView.isWeeklyWeatherDataLoading == false)
-                    Center(
-                        child:
-                            Text('Double Click "Week" to view full screen.')),
-                  SizedBox(height: 10.0),
-                  Card(
-                    elevation: 5.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(50.0),
-                        bottomLeft: Radius.circular(50.0),
-                      ),
-                    ),
-                    margin: EdgeInsets.only(left: 50.0),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedTab = TabText.TODAY;
-                              });
-                            },
-                            onDoubleTap: () {
-                              if (TodayWeatherListView
-                                          .isTodayWeatherDataLoading ==
-                                      false &&
-                                  TodayWeatherListView
-                                          .mListOfHourlyWeatherData.length >
-                                      0) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        FullDetailsWeatherPage(
-                                      WeatherDetails(
-                                          weatherMoment: 'Today',
-                                          weatherTime:
-                                              TodayWeatherListView.listOfTime,
-                                          weatherIcon: TodayWeatherListView
-                                              .listOfWeatherIcon,
-                                          weatherTemp: TodayWeatherListView
-                                              .listOfWeatherTemp,
-                                          weatherHumidity: TodayWeatherListView
-                                              .listOfWeatherHumidity,
-                                          weatherDetailsLength:
-                                              TodayWeatherListView
-                                                  .mListOfHourlyWeatherData
-                                                  .length),
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
-                              ),
-                              child: Container(
-                                color: selectedTab == TabText.TODAY
-                                    ? activeColor
-                                    : inActiveColor,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Center(
-                                    child: Text(
-                                      'Today',
-                                      style: TextStyle(
-                                        color: Color(0xff586171),
-                                        fontSize: 18.0,
-                                        fontWeight: selectedTab == TabText.TODAY
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedTab = TabText.TOMORROW;
-                              });
-                            },
-                            onDoubleTap: () {
-                              if (TomorrowWeatherListView
-                                      .isTomorrowWeatherDataLoading ==
-                                  false) {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            FullDetailsWeatherPage(WeatherDetails(
-                                                weatherMoment: 'Tomorrow',
-                                                weatherTime:
-                                                    TomorrowWeatherListView
-                                                        .listOfTime,
-                                                weatherIcon:
-                                                    TomorrowWeatherListView
-                                                        .listOfWeatherIcon,
-                                                weatherTemp:
-                                                    TomorrowWeatherListView
-                                                        .listOfWeatherTemp,
-                                                weatherHumidity:
-                                                    TomorrowWeatherListView
-                                                        .listOfWeatherHumidity,
-                                                weatherDetailsLength:
-                                                    TomorrowWeatherListView
-                                                        .mListOfHourlyWeatherDataForTomorrow
-                                                        .length))));
-                              }
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
-                              ),
-                              child: Container(
-                                color: selectedTab == TabText.TOMORROW
-                                    ? activeColor
-                                    : inActiveColor,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Center(
-                                    child: Text(
-                                      'Tomorrow',
-                                      style: TextStyle(
-                                        color: Color(0xff586171),
-                                        fontSize: 18.0,
-                                        fontWeight:
-                                            selectedTab == TabText.TOMORROW
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedTab = TabText.WEEK;
-                              });
-                            },
-                            onDoubleTap: () {
-                              if (WeeklyWeatherListView
-                                      .isWeeklyWeatherDataLoading ==
-                                  false) {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return FullDetailsWeatherPage(WeatherDetails(
-                                      weatherMoment: 'Week',
-                                      weatherTime: WeeklyWeatherListView
-                                          .mDayOfTheWeekList,
-                                      weatherTemp: WeeklyWeatherListView
-                                          .mListOfWeeklyWeatherTemp,
-                                      weatherDetailsLength: 5,
-                                      weatherHumidity: WeeklyWeatherListView
-                                          .mListOfWeeklyWeatherHumidity,
-                                      weatherIcon: WeeklyWeatherListView
-                                          .mListOfWeeklyWeatherIcon));
-                                }));
-                              }
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50.0),
-                              ),
-                              child: Container(
-                                color: selectedTab == TabText.WEEK
-                                    ? activeColor
-                                    : inActiveColor,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Center(
-                                    child: Text(
-                                      'Week',
-                                      style: TextStyle(
-                                        color: Color(0xff586171),
-                                        fontSize: 18.0,
-                                        fontWeight: selectedTab == TabText.WEEK
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  if (selectedTab == TabText.TODAY)
-                    TodayWeatherListView.TodayWeatherListView()
-                  else if (selectedTab == TabText.TOMORROW)
-                    TomorrowWeatherListView.TomorrowWeatherListView()
-                  else
-                    WeeklyWeatherListView.WeeklyWeatherListView(),
-                ],
-              ),
-            ),
+          SizedBox(height: height * 0.04),
+          _currentTime(),
+          SizedBox(
+            height: height * 0.04,
           ),
+          generateTab(),
+          SizedBox(height: 20.0),
+          if (selectedTab == TabText.TODAY)
+            TodayWeatherListView.TodayWeatherListView()
+          else if (selectedTab == TabText.TOMORROW)
+            TomorrowWeatherListView.TomorrowWeatherListView()
+          else
+            WeeklyWeatherListView.WeeklyWeatherListView(),
         ],
+      ),
+    );
+  }
+
+  Widget _currentTime() {
+    return Center(
+      child: RichText(
+        text: TextSpan(
+          text: '${currentTime()}\n',
+          style: TextStyle(
+              fontSize: 40.0,
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.bold),
+          children: <TextSpan>[
+            TextSpan(
+              text:
+                  '             ${DateFormat('EEE, d MMM').format(DateTime.now())}',
+              style: TextStyle(
+                  height: 1.5,
+                  color: Theme.of(context).primaryColor,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget generateTab() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        height: height * 0.06,
+        width: width * 0.9,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 0.3,
+                  spreadRadius: 0.3)
+            ],
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(height * 0.03),
+                bottomLeft: Radius.circular(height * 0.03))),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: _dayType
+              .asMap()
+              .entries
+              .map((_entry) => GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        switch (_entry.key) {
+                          case 0:
+                            selectedTab = TabText.TODAY;
+                            selectedItem = _entry.key;
+                            break;
+                          case 1:
+                            selectedTab = TabText.TOMORROW;
+                            selectedItem = _entry.key;
+
+                            break;
+                          case 2:
+                            selectedTab = TabText.WEEK;
+                            selectedItem = _entry.key;
+
+                            break;
+                          default:
+                            selectedTab = TabText.TOMORROW;
+                            selectedItem = 1;
+                        }
+                      });
+                    },
+                    child: Container(
+                      height: height * 0.3,
+                      width: width * 0.3,
+                      // padding: EdgeInsets.all(height * 0.02),
+                      decoration: _entry.key == selectedItem
+                          ? BoxDecoration(
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(height * 0.03)),
+                              color: Color(0XFFEBF2FF))
+                          : null,
+                      child: Center(
+                        child: Text(
+                          _entry.value,
+                          style: TextStyle(
+                            color: Color(0xff586171),
+                            fontSize: 18.0,
+                            fontWeight: selectedItem == _entry.key
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
