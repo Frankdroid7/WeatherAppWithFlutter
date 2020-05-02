@@ -29,7 +29,7 @@ void getWeeklyWeatherForecast() async {
 
   var listOfWeeklyForecast = weatherData['list'];
 
-  var regExpForTime = RegExp('12:00');
+  var regExpForTime = RegExp('3:00');
 
   for (int i = 0; i < listOfWeeklyForecast.length; i++) {
     var dateTime = listOfWeeklyForecast[i]['dt_txt'];
@@ -37,7 +37,7 @@ void getWeeklyWeatherForecast() async {
       mListOfWeeklyForecast.add(listOfWeeklyForecast[i]);
     }
   }
-  print('list of weekly forecast: $mListOfWeeklyForecast');
+
   isWeeklyWeatherDataLoading = false;
 }
 

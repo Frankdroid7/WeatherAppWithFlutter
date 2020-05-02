@@ -1,21 +1,15 @@
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/FullDetailsWeatherPage.dart';
-import 'package:weather_app/HomeHeader.dart';
-import 'package:weather_app/Weather/TodayWeatherListView.dart'
-    as TodayWeatherListView;
-import 'package:weather_app/Weather/TomorrowWeatherListView.dart'
-    as TomorrowWeatherListView;
+import 'package:weather_app/HomeHeaderContent.dart';
 import 'package:weather_app/Weather/WeatherDetails.dart';
-import 'package:weather_app/Weather/WeeklyWeatherListView.dart'
-    as WeeklyWeatherListView;
+import 'Weather/WeatherListView.dart';
 
 enum TabText { TODAY, TOMORROW, WEEK }
 
-TabText selectedTab = TabText.TOMORROW;
+TabText selectedTab = TabText.TODAY;
 
 const Color activeColor = Color(0xffEBF2FF);
 const Color inActiveColor = Color(0xffffffff);
@@ -32,9 +26,10 @@ class WeatherHomePage extends StatefulWidget {
 class _WeatherHomePageState extends State<WeatherHomePage> {
   double height;
   double width;
-  int selectedItem = 1;
+  int selectedItem = 0;
 
   List<String> _dayType = ["Today", "Tomorrow", "Week"];
+
   String currentTime() {
     String now;
     setState(() {
@@ -45,6 +40,11 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
 
   void readTime() {
     Timer.periodic(Duration(seconds: 0), (Timer t) => {currentTime()});
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -72,7 +72,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                     borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(height * 0.05))),
                 child: Align(
-                    alignment: Alignment.bottomCenter,
+                    alignment: Alignment.bottomRight,
                     child: WeatherExtrasContainer()),
               ),
               Container(
@@ -87,17 +87,25 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
           ),
           SizedBox(height: height * 0.04),
           _currentTime(),
+          if (selectedTab == TabText.TODAY &&
+              isWeatherDataLoading == false &&
+              mListOfWeatherData.length > 0)
+            Center(child: Text('Double Click "Today" to view full screen.')),
+          if (selectedTab == TabText.TOMORROW && isWeatherDataLoading == false)
+            Center(child: Text('Double Click "Tomorrow" to view full screen.')),
+          if (selectedTab == TabText.WEEK && isWeatherDataLoading == false)
+            Center(child: Text('Double Click "Week" to view full screen.')),
           SizedBox(
             height: height * 0.04,
           ),
           generateTab(),
           SizedBox(height: 20.0),
           if (selectedTab == TabText.TODAY)
-            TodayWeatherListView.TodayWeatherListView()
+            WeatherListView(TabText.TODAY)
           else if (selectedTab == TabText.TOMORROW)
-            TomorrowWeatherListView.TomorrowWeatherListView()
+            WeatherListView(TabText.TOMORROW)
           else
-            WeeklyWeatherListView.WeeklyWeatherListView(),
+            WeatherListView(TabText.WEEK),
         ],
       ),
     );
@@ -139,8 +147,12 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
             boxShadow: [
               BoxShadow(
                   color: Colors.grey.withOpacity(0.3),
-                  blurRadius: 0.3,
-                  spreadRadius: 0.3)
+                  blurRadius: 10.0,
+                  spreadRadius: 5.3),
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 10.0,
+                  spreadRadius: 5.3)
             ],
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(height * 0.03),
@@ -158,21 +170,77 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                             selectedTab = TabText.TODAY;
                             selectedItem = _entry.key;
                             break;
+
                           case 1:
                             selectedTab = TabText.TOMORROW;
                             selectedItem = _entry.key;
-
                             break;
+
                           case 2:
                             selectedTab = TabText.WEEK;
                             selectedItem = _entry.key;
-
                             break;
+
                           default:
-                            selectedTab = TabText.TOMORROW;
-                            selectedItem = 1;
+                            selectedTab = TabText.TODAY;
+                            selectedItem = 0;
                         }
                       });
+                    },
+
+            //To show the weather details in full screen when we double tab a text in the tab. 
+                    onDoubleTap: () {
+                      switch (_entry.key) {
+                        case 0:
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => FullDetailsWeatherPage(
+                                      WeatherDetails(
+                                          weatherMoment: "TODAY",
+                                          weatherTime: listOfTime,
+                                          weatherIcon: listOfWeatherIcon,
+                                          weatherHumidity: listOfWeatherHumidity,
+                                          weatherTemp: listOfWeatherTemp,
+                                          weatherDetailsLength:
+                                          mListOfWeatherData.length))));
+                          break;
+
+                        case 1:
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => FullDetailsWeatherPage(
+                                      WeatherDetails(
+                                          weatherMoment: "TOMORROW",
+                                          weatherTime: listOfTime,
+                                          weatherIcon: listOfWeatherIcon,
+                                          weatherHumidity: listOfWeatherHumidity,
+                                          weatherTemp: listOfWeatherTemp,
+                                          weatherDetailsLength:
+                                          mListOfWeatherData.length))));
+                          break;
+
+                        case 2:
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => FullDetailsWeatherPage(
+                                      WeatherDetails(
+                                          weatherMoment: "WEEK",
+                                          weatherTime: listOfTime,
+                                          weatherIcon: listOfWeatherIcon,
+                                          weatherHumidity: listOfWeatherHumidity,
+                                          weatherTemp: listOfWeatherTemp,
+                                          weatherDetailsLength:
+                                          mListOfWeatherData.length))));
+
+                          break;
+
+                        default:
+                          selectedTab = TabText.TODAY;
+                          selectedItem = 0;
+                      }
                     },
                     child: Container(
                       height: height * 0.3,

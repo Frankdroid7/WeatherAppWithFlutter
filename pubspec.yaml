@@ -29,6 +29,7 @@ dependencies:
   geolocator: ^5.3.0
   flutter_spinkit: ^4.1.2
   share: ^0.6.3+6
+  location: ^3.0.0
 
 
 dev_dependencies:

@@ -31,6 +31,8 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
   }
 
   void getHourlyForecastForTomorrow() async {
+
+
     //Get User's Coordinate first.
     LocationHelper _locationHelper = LocationHelper();
     await _locationHelper.getUserCoordinate();
@@ -125,6 +127,7 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
 
   @override
   Widget build(BuildContext context) {
+//    getHourlyForecastForTomorrow();
     return Expanded(
       flex: 1,
       child: isTomorrowWeatherDataLoading == true

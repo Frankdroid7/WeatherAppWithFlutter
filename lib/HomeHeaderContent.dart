@@ -7,11 +7,6 @@ import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
 import 'package:weather_app/Weather/weather.dart';
 
-class HomePageHeaderContent extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _HomePageHeaderContent();
-}
-
 //Initialize the location helper class
 LocationHelper _locationHelper = LocationHelper();
 String userCountry;
@@ -27,6 +22,11 @@ String weatherIcon;
 bool isLocationLoading = true;
 bool isCurrentWeatherLoading = true;
 
+class HomePageHeaderContent extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _HomePageHeaderContent();
+}
+
 class _HomePageHeaderContent extends State<HomePageHeaderContent> {
   @override
   void initState() {
@@ -36,13 +36,12 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
 
   //To get User's Country, Locality and current weather info.
   Future getUserAddressAndLocationData() async {
+
     await _locationHelper.getUserCountryAndLocality();
 
-    setState(() {
-      isLocationLoading = false;
-      userCountry = _locationHelper.userCountry;
-      userLocality = _locationHelper.userLocality;
-    });
+    userCountry = _locationHelper.userCountry;
+    userLocality = _locationHelper.userLocality;
+    isLocationLoading = false;
 
     _longitude = _locationHelper.longitude;
     _latitude = _locationHelper.latitude;
@@ -54,18 +53,16 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
 
     var weatherData = await _networkHelper.getData();
 
-    setState(() {
-      weatherIcon = getWeatherIcon(weatherData['weather'][0]['id']);
-      var temperature = weatherData['main']['temp'];
-      temp = temperature.toInt();
-      tempDesc = weatherData['weather'][0]['description'];
-      humidity = weatherData['main']['humidity'];
-      var feelsLikeInDouble = weatherData['main']['feels_like'];
-      feelsLike = feelsLikeInDouble.toInt();
-      var windInDouble = weatherData['wind']['speed'];
-      wind = windInDouble.toInt();
-      isCurrentWeatherLoading = false;
-    });
+    weatherIcon = getWeatherIcon(weatherData['weather'][0]['id']);
+    var temperature = weatherData['main']['temp'];
+    temp = temperature.toInt();
+    tempDesc = weatherData['weather'][0]['description'];
+    humidity = weatherData['main']['humidity'];
+    var feelsLikeInDouble = weatherData['main']['feels_like'];
+    feelsLike = feelsLikeInDouble.toInt();
+    var windInDouble = weatherData['wind']['speed'];
+    wind = windInDouble.toInt();
+    isCurrentWeatherLoading = false;
   }
 
   @override
@@ -93,11 +90,11 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
                   GestureDetector(
                       onTap: () {
                         Share.share(
-                          'Check out a weather app: https:\\www.google.com',
+                          'Check out a weather app: http://play.google.com/store/apps/details?id=frankdroid7.weather_app',
                           subject: 'A subject',
                         );
                       },
-                      child: Icon(Icons.share, color: Colors.white))
+                      child: Icon(Icons.share, color: Colors.white)),
                 ],
               ),
               isCurrentWeatherLoading == true

@@ -1,6 +1,12 @@
+import 'dart:ffi';
+
 import 'package:geolocator/geolocator.dart';
+//import 'package:location/location.dart';
 
 class LocationHelper {
+
+//  Location location = new Location();
+
   double longitude;
   double latitude;
   String userCountry;
@@ -8,26 +14,59 @@ class LocationHelper {
   List<Placemark> placemark;
 
   Future getUserCoordinate() async {
+
+
     Position position = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
 
     longitude = position.longitude;
     latitude = position.latitude;
-    print('longitude: $longitude');
-    print('latitude: $latitude');
+
+    print(longitude);
+    print(latitude);
+
+//    bool _serviceEnabled;
+//    PermissionStatus _permissionGranted;
+//    LocationData _locationData;
+//
+//    _serviceEnabled = await location.serviceEnabled();
+//    if (!_serviceEnabled) {
+//      _serviceEnabled = await location.requestService();
+//      if (!_serviceEnabled) {
+//        return;
+//      }
+//    }
+//
+//    _permissionGranted = await location.hasPermission();
+//    if (_permissionGranted == PermissionStatus.denied) {
+//      _permissionGranted = await location.requestPermission();
+//      if (_permissionGranted != PermissionStatus.granted) {
+//        return;
+//      }
+//    }
+//
+//    _locationData = await location.getLocation();
+
+
+
   }
 
   Future<void> getUserCountryAndLocality() async {
     await getUserCoordinate();
 
-    print('getUSER country got called');
 
     placemark =
         await Geolocator().placemarkFromCoordinates(latitude, longitude);
 
     userCountry = placemark[0].country;
     userLocality = placemark[0].locality;
-    print('User Locality: $userLocality');
-    print('User Country: $userCountry');
+
+//    userCountry = 'Nigeria';
+//    userLocality = 'Lagos';
+
+  }
+
+  Future waitToGetUsersLocation() async {
+     print('GOT LOCATION');
   }
 }
