@@ -30,6 +30,10 @@ dependencies:
   flutter_spinkit: ^4.1.2
   share: ^0.6.3+6
   location: ^3.0.0
+  animated_text_kit: ^2.0.1
+  connectivity: ^0.4.8+6
+  lottie: ^0.3.6
+  permission_handler: ^5.0.0+hotfix.6
 
 
 dev_dependencies:
@@ -49,6 +53,7 @@ flutter:
   uses-material-design: true
   assets:
     - images/
+    - assets/no-internet-connection.json
 
   fonts:
     - family: TitilliumWeb-Light

@@ -1,11 +1,14 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/FullDetailsWeatherPage.dart';
 import 'package:weather_app/HomeHeaderContent.dart';
 import 'package:weather_app/Weather/WeatherDetails.dart';
+
 import 'Weather/WeatherListView.dart';
+import 'weather_data.dart';
 
 enum TabText { TODAY, TOMORROW, WEEK }
 
@@ -26,7 +29,7 @@ class WeatherHomePage extends StatefulWidget {
 class _WeatherHomePageState extends State<WeatherHomePage> {
   double height;
   double width;
-  int selectedItem = 0;
+  String selectedItem = '';
 
   List<String> _dayType = ["Today", "Tomorrow", "Week"];
 
@@ -88,12 +91,11 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
           SizedBox(height: height * 0.04),
           _currentTime(),
           if (selectedTab == TabText.TODAY &&
-              isWeatherDataLoading == false &&
-              mListOfWeatherData.length > 0)
+              WeatherData.weatherForToday.length > 0)
             Center(child: Text('Double Click "Today" to view full screen.')),
-          if (selectedTab == TabText.TOMORROW && isWeatherDataLoading == false)
+          if (selectedTab == TabText.TOMORROW)
             Center(child: Text('Double Click "Tomorrow" to view full screen.')),
-          if (selectedTab == TabText.WEEK && isWeatherDataLoading == false)
+          if (selectedTab == TabText.WEEK)
             Center(child: Text('Double Click "Week" to view full screen.')),
           SizedBox(
             height: height * 0.04,
@@ -101,11 +103,20 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
           generateTab(),
           SizedBox(height: 20.0),
           if (selectedTab == TabText.TODAY)
-            WeatherListView(TabText.TODAY)
+            WeatherListView(
+              weatherList: WeatherData.weatherForToday,
+              weatherEnum: TabText.TODAY,
+            )
           else if (selectedTab == TabText.TOMORROW)
-            WeatherListView(TabText.TOMORROW)
+            WeatherListView(
+              weatherList: WeatherData.weatherForTomorrow,
+              weatherEnum: TabText.TOMORROW,
+            )
           else
-            WeatherListView(TabText.WEEK),
+            WeatherListView(
+              weatherList: WeatherData.weatherForWeek,
+              weatherEnum: TabText.WEEK,
+            ),
         ],
       ),
     );
@@ -136,6 +147,95 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
     );
   }
 
+  List<Widget> tabWidgets() {
+    List<Widget> listOfWidgets = [];
+
+    for (int i = 0; i < _dayType.length; i++) {
+      Widget widget;
+      widget = GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedTab = TabText.values[i];
+            selectedItem = _dayType[i];
+          });
+        },
+        onDoubleTap: () {
+          setState(() {
+            switch (selectedTab) {
+              case TabText.TODAY:
+                if (WeatherData.weatherForToday.isNotEmpty) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return FullDetailsWeatherPage(WeatherDetails(
+                        weatherMoment: 'TODAY',
+                        weatherTime: WeatherData.listOfTodayTime,
+                        weatherIcon: WeatherData.listOfWeatherIcon,
+                        weatherHumidity: WeatherData.listOfWeatherHumidity,
+                        weatherTemp: WeatherData.listOfWeatherTemp,
+                        weatherDetailsLength:
+                            WeatherData.weatherForToday.length));
+                  }));
+                }
+                break;
+              case TabText.TOMORROW:
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FullDetailsWeatherPage(
+                            WeatherDetails(
+                                weatherMoment: 'TOMORROW',
+                                weatherTime: WeatherData.listOfTomorrowTime,
+                                weatherIcon: WeatherData.listOfWeatherIcon,
+                                weatherHumidity:
+                                    WeatherData.listOfWeatherHumidity,
+                                weatherTemp: WeatherData.listOfWeatherTemp,
+                                weatherDetailsLength:
+                                    WeatherData.weatherForTomorrow.length))));
+                break;
+              case TabText.WEEK:
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FullDetailsWeatherPage(
+                            WeatherDetails(
+                                weatherMoment: 'WEEK',
+                                weatherTime: WeatherData.mDayOfTheWeekList,
+                                weatherIcon: WeatherData.listOfWeatherIcon,
+                                weatherHumidity:
+                                    WeatherData.listOfWeatherHumidity,
+                                weatherTemp: WeatherData.listOfWeatherTemp,
+                                weatherDetailsLength:
+                                    WeatherData.weatherForWeek.length))));
+                break;
+            }
+          });
+        },
+        child: Container(
+          height: height * 0.3,
+          width: width * 0.3,
+          decoration: selectedTab == TabText.values[i]
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(height * 0.3),
+                  color: Color(0XFFEBF2FF))
+              : null,
+          child: Center(
+            child: Text(
+              _dayType[i],
+              style: TextStyle(
+                color: Color(0xff586171),
+                fontSize: 18.0,
+                fontWeight: selectedItem == _dayType[i]
+                    ? FontWeight.bold
+                    : FontWeight.normal,
+              ),
+            ),
+          ),
+        ),
+      );
+      listOfWidgets.add(widget);
+    }
+    return listOfWidgets;
+  }
+
   Widget generateTab() {
     return Align(
       alignment: Alignment.centerRight,
@@ -159,120 +259,134 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                 bottomLeft: Radius.circular(height * 0.03))),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: _dayType
-              .asMap()
-              .entries
-              .map((_entry) => GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        switch (_entry.key) {
-                          case 0:
-                            selectedTab = TabText.TODAY;
-                            selectedItem = _entry.key;
-                            break;
-
-                          case 1:
-                            selectedTab = TabText.TOMORROW;
-                            selectedItem = _entry.key;
-                            break;
-
-                          case 2:
-                            selectedTab = TabText.WEEK;
-                            selectedItem = _entry.key;
-                            break;
-
-                          default:
-                            selectedTab = TabText.TODAY;
-                            selectedItem = 0;
-                        }
-                      });
-                    },
-
-            //To show the weather details in full screen when we double tab a text in the tab. 
-                    onDoubleTap: () {
-                      switch (_entry.key) {
-                        case 0:
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => FullDetailsWeatherPage(
-                                      WeatherDetails(
-                                          weatherMoment: "TODAY",
-                                          weatherTime: listOfTime,
-                                          weatherIcon: listOfWeatherIcon,
-                                          weatherHumidity: listOfWeatherHumidity,
-                                          weatherTemp: listOfWeatherTemp,
-                                          weatherDetailsLength:
-                                          mListOfWeatherData.length))));
-                          break;
-
-                        case 1:
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => FullDetailsWeatherPage(
-                                      WeatherDetails(
-                                          weatherMoment: "TOMORROW",
-                                          weatherTime: listOfTime,
-                                          weatherIcon: listOfWeatherIcon,
-                                          weatherHumidity: listOfWeatherHumidity,
-                                          weatherTemp: listOfWeatherTemp,
-                                          weatherDetailsLength:
-                                          mListOfWeatherData.length))));
-                          break;
-
-                        case 2:
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => FullDetailsWeatherPage(
-                                      WeatherDetails(
-                                          weatherMoment: "WEEK",
-                                          weatherTime: listOfTime,
-                                          weatherIcon: listOfWeatherIcon,
-                                          weatherHumidity: listOfWeatherHumidity,
-                                          weatherTemp: listOfWeatherTemp,
-                                          weatherDetailsLength:
-                                          mListOfWeatherData.length))));
-
-                          break;
-
-                        default:
-                          selectedTab = TabText.TODAY;
-                          selectedItem = 0;
-                      }
-                    },
-                    child: Container(
-                      height: height * 0.3,
-                      width: width * 0.3,
-                      // padding: EdgeInsets.all(height * 0.02),
-                      decoration: _entry.key == selectedItem
-                          ? BoxDecoration(
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(height * 0.03)),
-                              color: Color(0XFFEBF2FF))
-                          : null,
-                      child: Center(
-                        child: Text(
-                          _entry.value,
-                          style: TextStyle(
-                            color: Color(0xff586171),
-                            fontSize: 18.0,
-                            fontWeight: selectedItem == _entry.key
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ))
-              .toList(),
+          children: tabWidgets(),
         ),
       ),
     );
   }
 }
 
+//Row(
+//mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//children: _dayType
+//    .asMap()
+//.entries
+//    .map((_entry) => GestureDetector(
+//onTap: () {
+//setState(() {
+//switch (_entry.key) {
+//case 0:
+//selectedTab = TabText.TODAY;
+//selectedItem = _entry.key;
+//break;
+//
+//case 1:
+//selectedTab = TabText.TOMORROW;
+//selectedItem = _entry.key;
+//break;
+//
+//case 2:
+//selectedTab = TabText.WEEK;
+//selectedItem = _entry.key;
+//break;
+//
+//default:
+//selectedTab = TabText.TODAY;
+//selectedItem = 0;
+//}
+//});
+//},
+//
+////To show the weather details in full screen when we double tab a text in the tab.
+//onDoubleTap: () {
+//switch (_entry.key) {
+//case 0:
+//Navigator.push(
+//context,
+//MaterialPageRoute(
+//builder: (context) => FullDetailsWeatherPage(
+//WeatherDetails(
+//weatherMoment: "TODAY",
+//weatherTime: WeatherData.listOfTime,
+//weatherIcon:
+//WeatherData.listOfWeatherIcon,
+//weatherHumidity:
+//WeatherData.listOfWeatherHumidity,
+//weatherTemp:
+//WeatherData.listOfWeatherTemp,
+//weatherDetailsLength: WeatherData
+//    .weatherForToday.length))));
+//break;
+//
+//case 1:
+//Navigator.push(
+//context,
+//MaterialPageRoute(
+//builder: (context) => FullDetailsWeatherPage(
+//WeatherDetails(
+//weatherMoment: "TOMORROW",
+//weatherTime: WeatherData.listOfTime,
+//weatherIcon:
+//WeatherData.listOfWeatherIcon,
+//weatherHumidity:
+//WeatherData.listOfWeatherHumidity,
+//weatherTemp:
+//WeatherData.listOfWeatherTemp,
+//weatherDetailsLength: WeatherData
+//    .weatherForTomorrow.length))));
+//break;
+//
+//case 2:
+//Navigator.push(
+//context,
+//MaterialPageRoute(
+//builder: (context) => FullDetailsWeatherPage(
+//WeatherDetails(
+//weatherMoment: "WEEK",
+//weatherTime:
+//WeatherData.mDayOfTheWeekList,
+//weatherIcon:
+//WeatherData.listOfWeatherIcon,
+//weatherHumidity:
+//WeatherData.listOfWeatherHumidity,
+//weatherTemp:
+//WeatherData.listOfWeatherTemp,
+//weatherDetailsLength: WeatherData
+//    .weatherForWeek.length))));
+//
+//break;
+//
+//default:
+//selectedTab = TabText.TODAY;
+//selectedItem = 0;
+//}
+//},
+//child: Container(
+//height: height * 0.3,
+//width: width * 0.3,
+//// padding: EdgeInsets.all(height * 0.02),
+//decoration: _entry.key == selectedItem
+//? BoxDecoration(
+//borderRadius: BorderRadius.all(
+//Radius.circular(height * 0.03)),
+//color: Color(0XFFEBF2FF))
+//: null,
+//child: Center(
+//child: Text(
+//_entry.value,
+//style: TextStyle(
+//color: Color(0xff586171),
+//fontSize: 18.0,
+//fontWeight: selectedItem == _entry.key
+//? FontWeight.bold
+//    : FontWeight.normal,
+//),
+//),
+//),
+//),
+//))
+//.toList(),
+//)
 //class TabContainer extends StatefulWidget {
 //  @override
 //  _TabContainerState createState() => _TabContainerState();

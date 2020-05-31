@@ -23,15 +23,15 @@ class FullDetailsWeatherPage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
+                    Material(
+                      color: Theme.of(context).primaryColor,
+                      child: IconButton(
+                        focusColor: Colors.green,
+                        icon: Icon(Icons.arrow_back, color: Colors.red),
+                        onPressed: () => Navigator.pop(context),
+                        splashColor: Colors.purple,
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -162,8 +162,6 @@ class FullDetailsWeatherPage extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: _weatherDetails.weatherDetailsLength,
                   itemBuilder: (context, index) {
-                    print(
-                        'lengthoflistview: ${_weatherDetails.weatherDetailsLength}');
                     return IndividualWeatherDetailsItem(
                       _weatherDetails.weatherTime[index],
                       _weatherDetails.weatherIcon[index],

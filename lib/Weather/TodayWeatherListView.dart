@@ -30,14 +30,12 @@ class _TodayWeatherListViewState extends State<TodayWeatherListView> {
   }
 
   void getHourlyForecastForToday() async {
-
     //Get User's Coordinate first.
-    await _locationHelper.getUserCoordinate();
+//    await _locationHelper.getUserCoordinate();
 
     //Url for hourly forecast
     String urlForHourlyForecast =
         '$kBaseUrl/forecast?lat=${_locationHelper.latitude}&lon=${_locationHelper.longitude}&appid=$kAppId&units=metric';
-
 
     //Get json data from opeanweathermap.org
     NetworkHelper _networkHelper = NetworkHelper(url: urlForHourlyForecast);

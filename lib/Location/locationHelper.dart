@@ -1,10 +1,7 @@
-import 'dart:ffi';
-
 import 'package:geolocator/geolocator.dart';
 //import 'package:location/location.dart';
 
 class LocationHelper {
-
 //  Location location = new Location();
 
   double longitude;
@@ -14,16 +11,14 @@ class LocationHelper {
   List<Placemark> placemark;
 
   Future getUserCoordinate() async {
-
-
     Position position = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
 
     longitude = position.longitude;
     latitude = position.latitude;
 
-    print(longitude);
-    print(latitude);
+    print('getUserCoordinate: $longitude');
+    print('getUserCoordinate: $latitude');
 
 //    bool _serviceEnabled;
 //    PermissionStatus _permissionGranted;
@@ -46,14 +41,10 @@ class LocationHelper {
 //    }
 //
 //    _locationData = await location.getLocation();
-
-
-
   }
 
   Future<void> getUserCountryAndLocality() async {
     await getUserCoordinate();
-
 
     placemark =
         await Geolocator().placemarkFromCoordinates(latitude, longitude);
@@ -61,12 +52,7 @@ class LocationHelper {
     userCountry = placemark[0].country;
     userLocality = placemark[0].locality;
 
-//    userCountry = 'Nigeria';
-//    userLocality = 'Lagos';
-
-  }
-
-  Future waitToGetUsersLocation() async {
-     print('GOT LOCATION');
+    print('getUserCountryLocality: $userCountry');
+    print('getUserLocality: $userLocality');
   }
 }

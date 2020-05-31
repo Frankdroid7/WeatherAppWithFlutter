@@ -2,69 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share/share.dart';
-import 'package:weather_app/Constants/constants.dart';
-import 'package:weather_app/Location/locationHelper.dart';
-import 'package:weather_app/Networking/networking.dart';
-import 'package:weather_app/Weather/weather.dart';
 
-//Initialize the location helper class
-LocationHelper _locationHelper = LocationHelper();
-String userCountry;
-String userLocality;
-double _longitude;
-double _latitude;
-int temp;
-int humidity;
-int wind;
-int feelsLike;
-String tempDesc;
-String weatherIcon;
-bool isLocationLoading = true;
-bool isCurrentWeatherLoading = true;
+import 'weather_data.dart';
 
-class HomePageHeaderContent extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _HomePageHeaderContent();
-}
-
-class _HomePageHeaderContent extends State<HomePageHeaderContent> {
-  @override
-  void initState() {
-    super.initState();
-    getUserAddressAndLocationData();
-  }
-
-  //To get User's Country, Locality and current weather info.
-  Future getUserAddressAndLocationData() async {
-
-    await _locationHelper.getUserCountryAndLocality();
-
-    userCountry = _locationHelper.userCountry;
-    userLocality = _locationHelper.userLocality;
-    isLocationLoading = false;
-
-    _longitude = _locationHelper.longitude;
-    _latitude = _locationHelper.latitude;
-
-    String urlForCurrentWeather =
-        '$kBaseUrl/weather?lat=$_latitude&lon=$_longitude&appid=$kAppId&units=metric';
-
-    NetworkHelper _networkHelper = NetworkHelper(url: urlForCurrentWeather);
-
-    var weatherData = await _networkHelper.getData();
-
-    weatherIcon = getWeatherIcon(weatherData['weather'][0]['id']);
-    var temperature = weatherData['main']['temp'];
-    temp = temperature.toInt();
-    tempDesc = weatherData['weather'][0]['description'];
-    humidity = weatherData['main']['humidity'];
-    var feelsLikeInDouble = weatherData['main']['feels_like'];
-    feelsLike = feelsLikeInDouble.toInt();
-    var windInDouble = weatherData['wind']['speed'];
-    wind = windInDouble.toInt();
-    isCurrentWeatherLoading = false;
-  }
-
+class HomePageHeaderContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -82,11 +23,7 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  isLocationLoading == true
-                      ? SpinKitHourGlass(
-                          color: Colors.orange,
-                        )
-                      : LocationRichText(),
+                  LocationRichText(),
                   GestureDetector(
                       onTap: () {
                         Share.share(
@@ -97,11 +34,7 @@ class _HomePageHeaderContent extends State<HomePageHeaderContent> {
                       child: Icon(Icons.share, color: Colors.white)),
                 ],
               ),
-              isCurrentWeatherLoading == true
-                  ? SpinKitHourGlass(
-                      color: Colors.orange,
-                    )
-                  : CurrentWeatherInfo(),
+              CurrentWeatherInfo(),
             ],
           ),
         ),
@@ -116,7 +49,7 @@ class LocationRichText extends StatelessWidget {
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
-        text: '$userLocality\n',
+        text: '${WeatherData.userLocality}\n',
         style: TextStyle(
           fontSize: 30.0,
           fontWeight: FontWeight.bold,
@@ -124,7 +57,7 @@ class LocationRichText extends StatelessWidget {
         ),
         children: <TextSpan>[
           TextSpan(
-            text: '$userCountry',
+            text: '${WeatherData.userCountry}',
             style: TextStyle(
               height: 1.5,
               fontSize: 15.0,
@@ -138,7 +71,37 @@ class LocationRichText extends StatelessWidget {
 }
 
 //To show the User's current weather data
-class CurrentWeatherInfo extends StatelessWidget {
+class CurrentWeatherInfo extends StatefulWidget {
+  @override
+  _CurrentWeatherInfoState createState() => _CurrentWeatherInfoState();
+}
+
+class _CurrentWeatherInfoState extends State<CurrentWeatherInfo>
+    with SingleTickerProviderStateMixin {
+  AnimationController _controller;
+  Animation<Offset> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+
+    _animation = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, -0.2))
+        .animate(_controller);
+
+    _controller.forward();
+
+    _animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller.reverse(from: 1.0);
+      } else if (status == AnimationStatus.dismissed) {
+        _controller.forward();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -146,13 +109,16 @@ class CurrentWeatherInfo extends StatelessWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Text(
-              '$weatherIcon',
-              style: TextStyle(fontSize: 60.0),
+            SlideTransition(
+              position: _animation,
+              child: Text(
+                '${WeatherData.weatherIcon}',
+                style: TextStyle(fontSize: 60.0),
+              ),
             ),
             SizedBox(width: 10.0),
             Text(
-              '$temp°C',
+              '${WeatherData.temp}°C',
               style: TextStyle(
                 fontSize: 50.0,
                 color: Colors.white,
@@ -161,7 +127,7 @@ class CurrentWeatherInfo extends StatelessWidget {
           ],
         ),
         Text(
-          '$tempDesc',
+          '${WeatherData.tempDesc}',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.0,
@@ -209,31 +175,31 @@ class WeatherExtrasContainer extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          isCurrentWeatherLoading == true
+          WeatherData.isCurrentWeatherLoading == true
               ? SpinKitHourGlass(
                   color: Colors.orange,
                 )
               : WeatherExtras(
                   title: 'Humidity',
-                  value: '$humidity%',
+                  value: '${WeatherData.humidity}%',
                   icon: FontAwesomeIcons.rainbow,
                 ),
-          isCurrentWeatherLoading == true
+          WeatherData.isCurrentWeatherLoading == true
               ? SpinKitHourGlass(
                   color: Colors.orange,
                 )
               : WeatherExtras(
                   title: 'Wind',
-                  value: '$wind mph',
+                  value: '${WeatherData.wind}mph',
                   icon: FontAwesomeIcons.wind,
                 ),
-          isCurrentWeatherLoading == true
+          WeatherData.isCurrentWeatherLoading == true
               ? SpinKitHourGlass(
                   color: Colors.orange,
                 )
               : WeatherExtras(
                   title: 'Feels Like',
-                  value: '$feelsLike°C',
+                  value: '${WeatherData.feelsLike}°C',
                   icon: FontAwesomeIcons.coffee,
                 ),
         ],
