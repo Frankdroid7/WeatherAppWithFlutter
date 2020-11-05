@@ -64,7 +64,7 @@ class _WeatherAppState extends State<WeatherApp> {
               if (snapshot.data == ConnectivityResult.mobile ||
                   snapshot.data == ConnectivityResult.wifi) {
                 homeWidget = SignInWidget();
-git a              } else {
+              } else {
                 homeWidget = Scaffold(
                   backgroundColor: Colors.teal,
                   body: Center(
