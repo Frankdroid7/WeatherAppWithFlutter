@@ -1,8 +1,13 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share/share.dart';
 
+import 'main.dart';
+import 'main.dart';
+import 'main.dart';
+import 'main.dart';
 import 'weather_data.dart';
 
 class HomePageHeaderContent extends StatelessWidget {
@@ -11,7 +16,31 @@ class HomePageHeaderContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        LocationLabel(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            LocationLabel(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                onPressed: () {
+                  signOutGoogle().whenComplete(() {
+                    localStorage.clear();
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SignInWidget()));
+                  });
+                },
+                color: Colors.green,
+                child: Text(
+                  'Sign Out',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
         Padding(
           padding: EdgeInsets.symmetric(
             vertical: 10.0,
@@ -60,7 +89,7 @@ class LocationRichText extends StatelessWidget {
             text: '${WeatherData.userCountry}',
             style: TextStyle(
               height: 1.5,
-              fontSize: 15.0,
+              fontSize: 24.0,
               fontWeight: FontWeight.normal,
             ),
           ),
@@ -81,41 +110,47 @@ class _CurrentWeatherInfoState extends State<CurrentWeatherInfo>
   AnimationController _controller;
   Animation<Offset> _animation;
 
-  @override
-  void initState() {
-    super.initState();
-
-    _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 1));
-
-    _animation = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, -0.2))
-        .animate(_controller);
-
-    _controller.forward();
-
-    _animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _controller.reverse(from: 1.0);
-      } else if (status == AnimationStatus.dismissed) {
-        _controller.forward();
-      }
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   _controller =
+  //       AnimationController(vsync: this, duration: Duration(seconds: 1));
+  //
+  //   _animation = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, -0.2))
+  //       .animate(_controller);
+  //
+  //   _controller.forward();
+  //
+  //   _animation.addStatusListener((status) {
+  //     if (status == AnimationStatus.completed) {
+  //       _controller.reverse(from: 1.0);
+  //     } else if (status == AnimationStatus.dismissed) {
+  //       _controller.forward();
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        localStorage.getString('fName') != null
+            ? Text(
+                'Welcome: ${localStorage.getString('fName')}',
+                style: TextStyle(color: Colors.white, fontSize: 30.0),
+              )
+            : SizedBox.shrink(),
         Row(
           children: <Widget>[
-            SlideTransition(
-              position: _animation,
-              child: Text(
-                '${WeatherData.weatherIcon}',
-                style: TextStyle(fontSize: 60.0),
-              ),
-            ),
+            // SlideTransition(
+            //   position: _animation,
+            //   child: Text(
+            //     '${WeatherData.weatherIcon}',
+            //     style: TextStyle(fontSize: 60.0),
+            //   ),
+            // ),
             SizedBox(width: 10.0),
             Text(
               '${WeatherData.temp}°C',
