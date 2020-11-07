@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
-import 'package:weather_app/Weather/weather.dart' as weather;
+import 'package:weather_app/Weather/WeatherIcon.dart' as weather;
 
 import '../Constants/constants.dart';
-import '../IndividualHorizontalListItem.dart';
+import '../UI/CustomWidgets/IndividualHorizontalListItem.dart';
 
 LocationHelper _locationHelper = LocationHelper();
 List listOfHourlyWeatherData;

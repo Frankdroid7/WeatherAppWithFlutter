@@ -1,14 +1,18 @@
 import 'package:intl/intl.dart';
 import 'package:weather_app/Constants/constants.dart';
 import 'package:weather_app/Location/locationHelper.dart';
+import 'package:weather_app/Model/WeatherModel.dart';
 import 'package:weather_app/Networking/networking.dart';
-import 'package:weather_app/Weather/weather.dart' as Weather;
+import 'package:weather_app/Provider/WeatherProvider.dart';
+import 'package:weather_app/Weather/WeatherIcon.dart' as Weather;
 
 class WeatherData {
+  static List weatherForWeek = [];
   static List weatherForToday = [];
   static List weatherForTomorrow = [];
-  static List weatherForWeek = [];
   static List<String> mDayOfTheWeekList = [];
+
+  WeatherProvider _weatherProvider = WeatherProvider();
 
   //Initialize the location helper class
   LocationHelper _locationHelper = LocationHelper();
@@ -26,8 +30,6 @@ class WeatherData {
   static bool isCurrentWeatherLoading = true;
 
   static List listOfWeatherData;
-
-//  static List mListOfWeatherData;
   static String _time;
   static List<String> listOfTodayTime;
   static List<String> listOfTomorrowTime;
@@ -39,9 +41,10 @@ class WeatherData {
   Future getUserAddressAndLocationData() async {
     await _locationHelper.getUserCountryAndLocality();
 
-    userCountry = _locationHelper.userCountry;
-    userLocality = _locationHelper.userLocality;
     isLocationLoading = false;
+
+    _weatherProvider.setUserCountry(_locationHelper.userCountry);
+    _weatherProvider.setUserLocality(_locationHelper.userLocality);
 
     _longitude = _locationHelper.longitude;
     _latitude = _locationHelper.latitude;
@@ -50,18 +53,20 @@ class WeatherData {
         '$kBaseUrl/weather?lat=$_latitude&lon=$_longitude&appid=$kAppId&units=metric';
 
     NetworkHelper _networkHelper = NetworkHelper(url: urlForCurrentWeather);
-
     var weatherData = await _networkHelper.getData();
+    WeatherModel weatherModel = WeatherModel.fromJson(weatherData);
 
-    weatherIcon = Weather.getWeatherIcon(weatherData['weather'][0]['id']);
-    var temperature = weatherData['main']['temp'];
-    temp = temperature.toInt();
-    tempDesc = weatherData['weather'][0]['description'];
-    humidity = weatherData['main']['humidity'];
-    var feelsLikeInDouble = weatherData['main']['feels_like'];
-    feelsLike = feelsLikeInDouble.toInt();
-    var windInDouble = weatherData['wind']['speed'];
-    wind = windInDouble.toInt();
+    var temperature = weatherModel.temp;
+    var windInDouble = weatherModel.wind;
+    var feelsLikeInDouble = weatherModel.feelsLike;
+    _weatherProvider.setWind(windInDouble.toInt());
+    _weatherProvider.setHumidity(weatherModel.humidity);
+    _weatherProvider.setCurrentTemp(temperature.toInt());
+    _weatherProvider.setFeelsLike(feelsLikeInDouble.toInt());
+    _weatherProvider.setWeatherDesc(weatherModel.weatherDesc);
+    _weatherProvider
+        .setWeatherIcon(Weather.getWeatherIcon(weatherModel.weatherId));
+
     isCurrentWeatherLoading = false;
   }
 
@@ -78,7 +83,6 @@ class WeatherData {
     listOfWeatherData = weatherData['list'];
 
     //To initialize all variables.
-//    mListOfWeatherData = List();
     listOfTodayTime = List();
     listOfTomorrowTime = List();
     listOfWeatherIcon = List();
@@ -94,20 +98,14 @@ class WeatherData {
 
   Future getWeatherList() async {
     //To know what date, the date from the api should match.
-    String dateToMatch;
 
     var dateForToday = DateTime.now().add(Duration(hours: 0)).toString();
     var dateForTomorrow = DateTime.now().add(Duration(hours: 24)).toString();
 
-    //Variable to hold the time at 3:00 pm. To show each day of the week 3PM weather.
-
     //Regex to help match weather date. E.g 2020-05-02
     var regExpForDate = RegExp('[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]');
 
-//    dateToMatch = regExpForDate.stringMatch(dateToMatch);
-//
     //To loop through all weather data and get date from each of them. If it matches the current dateToMatch, add it to a new list. (It is this new list data we would show).
-
     for (int i = 0; i < listOfWeatherData.length; i++) {
       var dateToMatchForToday = regExpForDate.stringMatch(dateForToday);
 

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/Constants/constants.dart';
-import 'package:weather_app/IndividualHorizontalListItem.dart';
+import 'package:weather_app/UI/CustomWidgets/IndividualHorizontalListItem.dart';
 import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
-import 'package:weather_app/Weather/weather.dart' as Weather;
+import 'package:weather_app/Weather/WeatherIcon.dart' as Weather;
 
 var mListOfWeeklyForecast = List();
 List<int> mListOfWeeklyWeatherTemp = List();

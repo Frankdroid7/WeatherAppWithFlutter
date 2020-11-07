@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/IndividualHorizontalListItem.dart';
-import 'package:weather_app/WeatherHomePage.dart';
-import 'package:weather_app/weather_data.dart';
+import 'package:weather_app/UI/CustomWidgets/IndividualHorizontalListItem.dart';
+import 'package:weather_app/UI/WeatherHomePage.dart';
+import 'package:weather_app/Weather/weather_data.dart';
 
 class WeatherListView extends StatelessWidget {
   final List weatherList;

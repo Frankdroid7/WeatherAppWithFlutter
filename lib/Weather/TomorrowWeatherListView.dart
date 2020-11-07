@@ -3,9 +3,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:weather_app/Constants/constants.dart';
 import 'package:weather_app/Location/locationHelper.dart';
 import 'package:weather_app/Networking/networking.dart';
-import 'package:weather_app/Weather/weather.dart' as weather;
+import 'package:weather_app/Weather/WeatherIcon.dart' as weather;
 
-import '../IndividualHorizontalListItem.dart';
+import '../UI/CustomWidgets/IndividualHorizontalListItem.dart';
 
 List listOfHourlyWeatherData;
 List mListOfHourlyWeatherDataForTomorrow;
@@ -31,8 +31,6 @@ class _TomorrowWeatherListViewState extends State<TomorrowWeatherListView> {
   }
 
   void getHourlyForecastForTomorrow() async {
-
-
     //Get User's Coordinate first.
     LocationHelper _locationHelper = LocationHelper();
     await _locationHelper.getUserCoordinate();
